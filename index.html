@@ -9,39 +9,39 @@
 <body>
   <div class="calc-card">
     <div class="calc-screen">
-      <span>Ans = 2</span>
+      <span id="calc-result">0</span>
     </div>
     <table class="calc-panel-right">
       <tbody>
         <tr>
-          <td><div class="calc-btn calc-btn-sign">(</div></td>
-          <td><div class="calc-btn calc-btn-sign">)</div></td>
-          <td><div class="calc-btn calc-btn-sign">%</div></td>
-          <td><div class="calc-btn calc-btn-sign">AC</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('(')">(</div></td>
+          <td><div class="calc-btn calc-btn-symbol">)</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('/')">%</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('AC')">AC</div></td>
         </tr>
         <tr>
-          <td><div class="calc-btn calc-btn-num">7</div></td>
-          <td><div class="calc-btn calc-btn-num">8</div></td>
-          <td><div class="calc-btn calc-btn-num">9</div></td>
-          <td><div class="calc-btn calc-btn-sign">÷</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(7)">7</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(8)">8</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(9)">9</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('/')">÷</div></td>
         </tr>
         <tr>
-          <td><div class="calc-btn calc-btn-num">4</div></td>
-          <td><div class="calc-btn calc-btn-num">5</div></td>
-          <td><div class="calc-btn calc-btn-num">6</div></td>
-          <td><div class="calc-btn calc-btn-sign">×</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(4)">4</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(5)">5</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(6)">6</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('*')">×</div></td>
         </tr>
         <tr>
-          <td><div class="calc-btn calc-btn-num" >1</div></td>
-          <td><div class="calc-btn calc-btn-num" >2</div></td>
-          <td><div class="calc-btn calc-btn-num" >3</div></td>
-          <td><div class="calc-btn calc-btn-sign">-</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(1)">1</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(2)">2</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(3)">3</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('-')">-</div></td>
         </tr>
         <tr>
-          <td><div class="calc-btn calc-btn-num">0</div></td>
-          <td><div class="calc-btn calc-btn-num">.</div></td>
-          <td><div class="calc-btn calc-btn-sign-eq">=</div></td>
-          <td><div class="calc-btn calc-btn-sign">+</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton(0)">0</div></td>
+          <td><div class="calc-btn calc-btn-num" onclick="onClickButton('.')">.</div></td>
+          <td><div class="calc-btn calc-btn-eq" onclick="onClickButton('=')">=</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('+')">+</div></td>
         </tr>
       </tbody>
     </table>      
