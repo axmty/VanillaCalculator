@@ -56,12 +56,18 @@ const expression = (function() {
         expr = ["0"];
     }
 
+    function addPercent() {
+        if (isNumber(last())) {
+            append("%");
+        }
+    }
+
     function isOperator(symbol) {
         return "+-*/".indexOf(symbol) >= 0;
     }
 
     function isNumber(value) {
-        return Number.isFinite(+value) || value == ".";
+        return Number.isFinite(+value) || value === ".";
     }
 
     function isNaN(value) {
@@ -84,6 +90,8 @@ const expression = (function() {
                 addOperator(symbol);
             } else if (symbol === "=") {
                 evaluate();
+            } else if (symbol === "%") {
+                addPercent();
             }
         },
         toString() {
@@ -97,6 +105,8 @@ const expression = (function() {
                     } else {
                         text += s;
                     }
+                } else if (s === "%") {
+                    text += "%";
                 }
             });
             return text;
