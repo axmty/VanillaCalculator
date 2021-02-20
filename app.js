@@ -3,7 +3,7 @@
 const expression = (function() {
     let expr = ["0"];
 
-    function last() {
+    function lastSymbol() {
         return expr[expr.length - 1];
     }
     
@@ -20,58 +20,75 @@ const expression = (function() {
     }
 
     function addNumber(number) {
-        const l = last();
-        if (l === "0") {
+        const last = lastSymbol();
+        if (last === "0") {
             expr[lastIndex()] = number.toString();
-        } else if (isNaN(last())) {
-            append(number.toString());
-        } else {
+        } else if (Number.isFinite(+last) || last === ".") {
             expr[lastIndex()] += number;
+        } else if ([")", "%"].indexOf(last) >= 0) {
+            append("*");
+            append(number.toString());
+        } else if (["(", "+", "u-", "b-", "*", "/"].indexOf(last) >= 0) {
+            append(number.toString());
         }
     }
 
     function addDot() {
-        const l = last();
-        if (isNumber(l) && l.indexOf(".") < 0) {
+        const last = lastSymbol();
+        if (length() === 1 && last === "0") {
+            expr[lastIndex()] = ".";
+        } else if (Number.isFinite(+last) && last.indexOf(".") < 0) {
             expr[lastIndex()] += ".";
-        } else if (isNaN(l)) {
+        } else if ([")", "%"].indexOf(last) >= 0) {
+            append("*");
+            append(".");
+        } else if (["(", "+", "u-", "b-", "*", "/"].indexOf(last) >= 0) {
             append(".");
         }
     }
 
     function addOperator(operator) {
-        const l = last();
+        const last = lastSymbol();
         if (operator === "-") {
-            if ((length() === 1 && l === "0") || l === "+") {
-                expr[lastIndex()] = "-";
-            } else if (l !== "-") {
-                append("-");
+            if (length() === 1 && last === "0") {
+                expr[lastIndex()] = "u-";
+            } else if (last === "+") {
+                expr[lastIndex()] = "b-";
+            } else if (["(", "*", "/"].indexOf(last) >= 0) {
+                append("u-");
+            } else if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+                append("b-");
             }
-        } else if (isNumber(last())) {
-            append(operator);
+        } else if (operator === "+") {
+            if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+                append("+");
+            } else if (last === "b-") {
+                expr[lastIndex()] = "+";
+            }
+        } else if (operator === "/") {
+            if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+                append("/");
+            } else if (last === "*") {
+                expr[lastIndex()] = "/";
+            }
+        } else if (operator === "*") {
+            if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+                append("*");
+            } else if (last === "/") {
+                expr[lastIndex()] = "*";
+            }
+        }
+    }
+
+    function addPercent() {
+        const last = lastSymbol();
+        if (Number.isFinite(+last) || last === ")") {
+            append("%");
         }
     }
 
     function allClear() {
         expr = ["0"];
-    }
-
-    function addPercent() {
-        if (isNumber(last())) {
-            append("%");
-        }
-    }
-
-    function isOperator(symbol) {
-        return "+-*/".indexOf(symbol) >= 0;
-    }
-
-    function isNumber(value) {
-        return Number.isFinite(+value) || value === ".";
-    }
-
-    function isNaN(value) {
-        return window.isNaN(value) && value !== ".";
     }
 
     function evaluate() {
@@ -86,7 +103,7 @@ const expression = (function() {
                 addDot();
             } else if (symbol === "AC") {
                 allClear();
-            } else if (isOperator(symbol)) {
+            } else if (["+", "-", "*", "/"].indexOf(symbol) >= 0) {
                 addOperator(symbol);
             } else if (symbol === "=") {
                 evaluate();
@@ -95,16 +112,21 @@ const expression = (function() {
             }
         },
         toString() {
+            console.log(expr);
             let text = "";
             expr.forEach((s, i) => {
-                if (isNumber(s)) {
+                if (Number.isFinite(+s) || s === ".") {
                     text += s;
-                } else if (isOperator(s)) {
-                    if (i > 0 && isNumber(expr[i - 1])) {
-                        text += ` ${s} `;
-                    } else {
-                        text += s;
-                    }
+                } else if (s === "+") {
+                    text += " + ";
+                } else if (s === "b-") {
+                    text += " - ";
+                } else if (s === "u-") {
+                    text += "-";
+                } else if (s === "*") {
+                    text += " × ";
+                } else if (s === "/") {
+                    text += " ÷ ";
                 } else if (s === "%") {
                     text += "%";
                 }
@@ -114,15 +136,8 @@ const expression = (function() {
     }
 })();
 
-const printer = (function(element) {
-    return {
-        printExpression(expression) {
-            element.textContent = expression.toString();
-        }
-    }
-})(document.getElementById("calc-result"));
-
 function onClickButton(symbol) {
     expression.addSymbol(symbol);
-    printer.printExpression(expression);
+    const element = document.getElementById("calc-result");
+    element.textContent = expression.toString();
 }
