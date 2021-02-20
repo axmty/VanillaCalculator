@@ -92,7 +92,16 @@ const expression = (function() {
     }
 
     function evaluate() {
+        transformToEvaluable();
         expr = [eval(expr.join("")).toString()];
+    }
+
+    function transformToEvaluable() {
+        expr.forEach((s, i) => {
+            if (s === "%") {
+                expr[i] = "*0.01";
+            }
+        });
     }
 
     return {
@@ -109,6 +118,8 @@ const expression = (function() {
                 evaluate();
             } else if (symbol === "%") {
                 addPercent();
+            } else if (symbol === "=") {
+                evaluate();
             }
         },
         toString() {
