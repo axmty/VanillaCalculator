@@ -23,7 +23,7 @@ const expression = (function() {
         const l = last();
         if (l === "0") {
             expr[lastIndex()] = number.toString();
-        } else if (isNaN(+last())) {
+        } else if (isNaN(last())) {
             append(number.toString());
         } else {
             expr[lastIndex()] += number;
@@ -48,7 +48,7 @@ const expression = (function() {
                 append("-");
             }
         } else if (isNumber(last())) {
-
+            append(operator);
         }
     }
 
@@ -61,11 +61,15 @@ const expression = (function() {
     }
 
     function isNumber(value) {
-        return Number.isFinite(+value);
+        return Number.isFinite(+value) || value == ".";
     }
 
     function isNaN(value) {
-        return Number.isNaN(value);
+        return window.isNaN(value) && value !== ".";
+    }
+
+    function evaluate() {
+        expr = [eval(expr.join("")).toString()];
     }
 
     return {
@@ -78,6 +82,8 @@ const expression = (function() {
                 allClear();
             } else if (isOperator(symbol)) {
                 addOperator(symbol);
+            } else if (symbol === "=") {
+                evaluate();
             }
         },
         toString() {
