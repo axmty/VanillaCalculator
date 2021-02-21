@@ -1,5 +1,8 @@
 "use strict";
 
+const calcResult = document.getElementById("calc-result");
+const calcGhostParenthesis = document.getElementById("calc-ghost-parenthesis");
+
 const expression = (function() {
     let expr = ["0"];
 
@@ -25,10 +28,10 @@ const expression = (function() {
             expr[lastIndex()] = number.toString();
         } else if (Number.isFinite(+last) || last === ".") {
             expr[lastIndex()] += number;
-        } else if ([")", "%"].indexOf(last) >= 0) {
+        } else if ([")", "%"].includes(last)) {
             append("*");
             append(number.toString());
-        } else if (["(", "+", "u-", "b-", "*", "/"].indexOf(last) >= 0) {
+        } else if (["(", "+", "u-", "b-", "*", "/"].includes(last)) {
             append(number.toString());
         }
     }
@@ -37,12 +40,12 @@ const expression = (function() {
         const last = lastSymbol();
         if (length() === 1 && last === "0") {
             expr[lastIndex()] = ".";
-        } else if (Number.isFinite(+last) && last.indexOf(".") < 0) {
+        } else if (Number.isFinite(+last) && !last.includes(".")) {
             expr[lastIndex()] += ".";
-        } else if ([")", "%"].indexOf(last) >= 0) {
+        } else if ([")", "%"].includes(last)) {
             append("*");
             append(".");
-        } else if (["(", "+", "u-", "b-", "*", "/"].indexOf(last) >= 0) {
+        } else if (["(", "+", "u-", "b-", "*", "/"].includes(last)) {
             append(".");
         }
     }
@@ -54,25 +57,25 @@ const expression = (function() {
                 expr[lastIndex()] = "u-";
             } else if (last === "+") {
                 expr[lastIndex()] = "b-";
-            } else if (["(", "*", "/"].indexOf(last) >= 0) {
+            } else if (["(", "*", "/"].includes(last)) {
                 append("u-");
-            } else if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+            } else if ([")", "%"].includes(last) || Number.isFinite(+last)) {
                 append("b-");
             }
         } else if (operator === "+") {
-            if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+            if ([")", "%"].includes(last) || Number.isFinite(+last)) {
                 append("+");
             } else if (last === "b-") {
                 expr[lastIndex()] = "+";
             }
         } else if (operator === "/") {
-            if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+            if ([")", "%"].includes(last) || Number.isFinite(+last)) {
                 append("/");
             } else if (last === "*") {
                 expr[lastIndex()] = "/";
             }
         } else if (operator === "*") {
-            if ([")", "%"].indexOf(last) >= 0 || Number.isFinite(+last)) {
+            if ([")", "%"].includes(last) || Number.isFinite(+last)) {
                 append("*");
             } else if (last === "/") {
                 expr[lastIndex()] = "*";
@@ -87,6 +90,19 @@ const expression = (function() {
         }
     }
 
+    function addLeftParenthesis() {
+        const last = lastSymbol();
+        if (length() === 1 && last === "0") {
+            expr[lastIndex()] = "(";
+        } else {
+            append("(");
+        }
+    }
+
+    function addRightParenthesis() {
+        append(")");
+    }
+
     function allClear() {
         expr = ["0"];
     }
@@ -96,12 +112,27 @@ const expression = (function() {
         expr = [eval(expr.join("")).toString()];
     }
 
+    function countMissingRightParenthesis() {
+        return expr.reduce((cnt, s) => {
+            if (s === "(") {
+                cnt++;
+            } else if (s === ")") {
+                cnt--;
+            }
+            return cnt;
+        }, 0);
+    }
+
     function transformToEvaluable() {
         expr.forEach((s, i) => {
             if (s === "%") {
                 expr[i] = "*0.01";
             }
         });
+        const missingRightParenthesis = countMissingRightParenthesis();
+        for (let i = 0; i < missingRightParenthesis; i++) {
+            append(")");
+        }
     }
 
     return {
@@ -112,7 +143,7 @@ const expression = (function() {
                 addDot();
             } else if (symbol === "AC") {
                 allClear();
-            } else if (["+", "-", "*", "/"].indexOf(symbol) >= 0) {
+            } else if (["+", "-", "*", "/"].includes(symbol)) {
                 addOperator(symbol);
             } else if (symbol === "=") {
                 evaluate();
@@ -120,10 +151,13 @@ const expression = (function() {
                 addPercent();
             } else if (symbol === "=") {
                 evaluate();
+            } else if (symbol === "(") {
+                addLeftParenthesis();
+            } else if (symbol === ")") {
+                addRightParenthesis();
             }
         },
         toString() {
-            console.log(expr);
             let text = "";
             expr.forEach((s, i) => {
                 if (Number.isFinite(+s) || s === ".") {
@@ -140,15 +174,23 @@ const expression = (function() {
                     text += " ÷ ";
                 } else if (s === "%") {
                     text += "%";
+                } else if (["(", ")"].includes(s)) {
+                    text += s;
                 }
             });
             return text;
-        }
+        },
+        countMissingRightParenthesis
     }
 })();
 
 function onClickButton(symbol) {
     expression.addSymbol(symbol);
-    const element = document.getElementById("calc-result");
-    element.textContent = expression.toString();
+    calcResult.textContent = expression.toString();
+    let ghostParenthesis = "";
+    let countGhostParenthesis = expression.countMissingRightParenthesis()
+    for (let i = 0; i < countGhostParenthesis; i++) {
+        ghostParenthesis += ")";
+    }
+    calcGhostParenthesis.textContent = ghostParenthesis;
 }

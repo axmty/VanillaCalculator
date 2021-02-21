@@ -9,13 +9,13 @@
 <body>
   <div class="calc-card">
     <div class="calc-screen">
-      <span id="calc-result">0</span>
+      <span id="calc-result">0</span><span id="calc-ghost-parenthesis"></span>
     </div>
     <table class="calc-panel-right">
       <tbody>
         <tr>
           <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('(')">(</div></td>
-          <td><div class="calc-btn calc-btn-symbol">)</div></td>
+          <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton(')')">)</div></td>
           <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('%')">%</div></td>
           <td><div class="calc-btn calc-btn-symbol" onclick="onClickButton('AC')">AC</div></td>
         </tr>

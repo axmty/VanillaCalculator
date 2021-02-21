@@ -12,6 +12,11 @@
   padding: 9px;
   border-radius: 6px;
   text-align: right;
+  font-size: 30px;
+}
+
+#calc-ghost-parenthesis {
+  color: rgb(204, 204, 204);
 }
 
 .calc-btn {
