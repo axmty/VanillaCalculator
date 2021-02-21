@@ -109,7 +109,12 @@ const expression = (function() {
 
     function evaluate() {
         transformToEvaluable();
-        expr = [eval(expr.join("")).toString()];
+        try {
+            const result = eval(expr.join("")).toString()
+            expr = [result];
+        } catch {
+            expr = ["Error"];
+        }
     }
 
     function countMissingRightParenthesis() {
@@ -137,6 +142,10 @@ const expression = (function() {
 
     return {
         addSymbol(symbol) {
+            if (expr[0] === "Error") {
+                expr = [0];
+            }
+
             if (typeof symbol === "number") {
                 addNumber(symbol);
             } else if (symbol === ".") {
@@ -176,6 +185,8 @@ const expression = (function() {
                     text += "%";
                 } else if (["(", ")"].includes(s)) {
                     text += s;
+                } else if (s === "Error") {
+                    text += "Error";
                 }
             });
             return text;
