@@ -94,13 +94,17 @@ const expression = (function() {
         const last = lastSymbol();
         if (length() === 1 && last === "0") {
             expr[lastIndex()] = "(";
-        } else {
+        } else if (Number.isFinite(+last) || ["+", "u-", "b-", "*", "/", "%"].includes(last)) {
             append("(");
         }
     }
 
     function addRightParenthesis() {
-        append(")");
+        const last = lastSymbol();
+        if (countMissingRightParenthesis() > 0
+            && (Number.isFinite(+last) || last === "%")) {
+            append(")");
+        }
     }
 
     function allClear() {
@@ -108,12 +112,13 @@ const expression = (function() {
     }
 
     function evaluate() {
+        console.log("before transform: " + expr);
         transformToEvaluable();
         try {
             const result = eval(expr.join("")).toString()
             expr = [result];
         } catch {
-            expr = ["Error"];
+            expr = ["err"];
         }
     }
 
@@ -132,17 +137,23 @@ const expression = (function() {
         expr.forEach((s, i) => {
             if (s === "%") {
                 expr[i] = "*0.01";
+                if (i < length() - 1 && expr[i + 1] === "(") {
+                    expr[i] += "*";
+                }
+            } else if (s === "(" && i > 0 && Number.isFinite(+expr[i - 1])) {
+                expr[i] = "*(";
             }
         });
         const missingRightParenthesis = countMissingRightParenthesis();
         for (let i = 0; i < missingRightParenthesis; i++) {
             append(")");
         }
+        console.log("evaluable: " + expr);
     }
 
     return {
         addSymbol(symbol) {
-            if (expr[0] === "Error") {
+            if (expr[0] === "err") {
                 expr = [0];
             }
 
@@ -185,7 +196,7 @@ const expression = (function() {
                     text += "%";
                 } else if (["(", ")"].includes(s)) {
                     text += s;
-                } else if (s === "Error") {
+                } else if (s === "err") {
                     text += "Error";
                 }
             });
